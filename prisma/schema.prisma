@@ -1,0 +1,133 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  auth0Id   String   @unique
+  email     String   @unique
+  name      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  profile      UserProfile?
+  checkIns     DailyCheckIn[]
+  workoutPlans WorkoutPlan[]
+  progressLogs ProgressLog[]
+  achievements Achievement[]
+}
+
+model UserProfile {
+  id            String  @id @default(cuid())
+  userId        String  @unique
+  bodyTypeGoal  String?
+  currentWeight Float?
+  targetWeight  Float?
+  fitnessLevel  String? // beginner, intermediate, advanced
+  preferences   String? // JSON string for workout preferences
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model DailyCheckIn {
+  id          String   @id @default(cuid())
+  userId      String
+  date        DateTime @default(now())
+  mood        Int      // 1-5 scale
+  motivation  Int      // 1-5 scale
+  notes       String?
+  completed   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, date])
+}
+
+model WorkoutPlan {
+  id           String   @id @default(cuid())
+  userId       String
+  goal         String
+  durationWeeks Int
+  startDate    DateTime
+  endDate      DateTime
+  aiGenerated  Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user      User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sessions  WorkoutSession[]
+}
+
+model WorkoutSession {
+  id           String   @id @default(cuid())
+  workoutPlanId String
+  weekNumber   Int
+  dayNumber    Int      // 1-7 for days of the week
+  exercises    String   // JSON string of exercises
+  completed    Boolean  @default(false)
+  completedAt  DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  workoutPlan WorkoutPlan @relation(fields: [workoutPlanId], references: [id], onDelete: Cascade)
+
+  @@unique([workoutPlanId, weekNumber, dayNumber])
+  @@index([workoutPlanId, weekNumber])
+}
+
+model Exercise {
+  id           String   @id @default(cuid())
+  name         String
+  type         String   // cardio, strength, flexibility, etc.
+  muscleGroups String   // JSON array of muscle groups
+  instructions String?
+  sets         Int?
+  reps         Int?
+  duration     Int?     // in seconds
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([type])
+  @@index([name])
+}
+
+model ProgressLog {
+  id           String   @id @default(cuid())
+  userId       String
+  date         DateTime @default(now())
+  weight       Float?
+  photos       String?  // JSON array of photo URLs
+  measurements String?  // JSON object of measurements
+  notes        String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, date])
+}
+
+model Achievement {
+  id          String   @id @default(cuid())
+  userId      String
+  type        String   // streak, workout_complete, weight_loss, etc.
+  unlockedAt  DateTime @default(now())
+  description String?
+  createdAt   DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, type])
+}
