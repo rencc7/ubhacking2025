@@ -3,7 +3,7 @@ import { getSessionFromRequest } from '../../../../lib/auth';
 import { db } from '../../../../lib/db';
 
 export async function GET() {
-  const session = getSessionFromRequest();
+  const session = await getSessionFromRequest();
   if (!session?.userId) return NextResponse.json({ user: null }, { status: 200 });
 
   const user = await db.user.findUnique({ where: { id: session.userId }, include: { profile: true } });

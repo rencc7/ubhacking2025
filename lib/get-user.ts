@@ -2,7 +2,7 @@ import { db } from "./db";
 import { getSessionFromRequest } from "./auth";
 
 export async function getCurrentUser() {
-  const session = getSessionFromRequest();
+  const session = await getSessionFromRequest();
 
   if (!session?.userId) {
     return null;

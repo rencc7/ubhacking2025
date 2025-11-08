@@ -30,12 +30,12 @@ export function createSessionCookie(token: string) {
   return cookie;
 }
 
-export function getSessionFromRequest() {
+export async function getSessionFromRequest() {
   // `cookies()` can be typed differently in various Next.js versions; cast to any to be resilient here.
-  const cookieStore: any = cookies();
-  const token = cookieStore?.get?.(COOKIE_NAME)?.value;
-  if (!token) return null;
-  return verifySession(token);
+  const cookieStore = await cookies();
+  const cookie = cookieStore.get(COOKIE_NAME);
+  if (!cookie?.value) return null;
+  return verifySession(cookie.value);
 }
 
 export function clearSessionCookie() {

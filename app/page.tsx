@@ -18,11 +18,17 @@ export default function Home() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
-              href="/api/auth/login"
+              href="/register"
               className="px-8 py-4 rounded-lg bg-primary text-white hover:bg-primary-dark transition-colors text-lg font-medium flex items-center justify-center gap-2"
             >
               Get Started
               <ArrowRight className="w-5 h-5" />
+            </Link>
+            <Link
+              href="/login"
+              className="px-8 py-4 rounded-lg bg-muted text-foreground hover:bg-accent transition-colors text-lg font-medium"
+            >
+              Login
             </Link>
             <Link
               href="/dashboard"
