@@ -1,13 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useUser } from "@auth0/nextjs-auth0/client";
+import { useAuth } from "@/components/AuthProvider";
 import { useRouter } from "next/navigation";
 import Card from "@/components/Card";
 import { Calendar, TrendingUp, Target, Award } from "lucide-react";
 
 export default function ReportsPage() {
-  const { user, isLoading } = useUser();
+  const { user, loading: isLoading } = useAuth();
   const router = useRouter();
   const [weeklyReport, setWeeklyReport] = useState<string>("");
   const [nutritionTip, setNutritionTip] = useState<string>("");
@@ -15,7 +15,7 @@ export default function ReportsPage() {
 
   useEffect(() => {
     if (!isLoading && !user) {
-      router.push("/api/auth/login");
+      router.push("/login");
     }
   }, [user, isLoading, router]);
 

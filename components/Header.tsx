@@ -1,11 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useUser } from "@auth0/nextjs-auth0/client";
+import { useAuth } from "@/components/AuthProvider";
 import { LogOut, User } from "lucide-react";
 
 export default function Header() {
-  const { user, isLoading } = useUser();
+  const { user, loading: isLoading, logout } = useAuth();
 
   return (
     <header className="bg-card border-b border-border shadow-sm">
@@ -58,21 +58,21 @@ export default function Header() {
                     <User className="w-5 h-5" />
                     <span className="hidden md:inline">{user.name || user.email}</span>
                   </div>
-                  <a
-                    href="/api/auth/logout"
+                  <button
+                    onClick={() => logout()}
                     className="flex items-center gap-2 px-4 py-2 rounded-lg bg-muted hover:bg-accent transition-colors text-warm-gray"
                   >
                     <LogOut className="w-4 h-4" />
                     <span className="hidden md:inline">Logout</span>
-                  </a>
+                  </button>
                 </>
               ) : (
-                <a
-                  href="/api/auth/login"
+                <Link
+                  href="/login"
                   className="px-6 py-2 rounded-lg bg-primary text-white hover:bg-primary-dark transition-colors"
                 >
                   Login
-                </a>
+                </Link>
               )}
             </div>
           )}

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useUser } from "@auth0/nextjs-auth0/client";
+import { useAuth } from "@/components/AuthProvider";
 import { useRouter } from "next/navigation";
 import DailyCheckIn from "@/components/DailyCheckIn";
 import WorkoutCard from "@/components/WorkoutCard";
@@ -42,7 +42,7 @@ interface Achievement {
 }
 
 export default function Dashboard() {
-  const { user, isLoading } = useUser();
+  const { user, loading: isLoading } = useAuth();
   const router = useRouter();
   const [showCheckIn, setShowCheckIn] = useState(false);
   const [hasCheckedIn, setHasCheckedIn] = useState(false);
@@ -54,7 +54,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     if (!isLoading && !user) {
-      router.push("/api/auth/login");
+      router.push("/login");
     }
   }, [user, isLoading, router]);
 

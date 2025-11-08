@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useUser } from "@auth0/nextjs-auth0/client";
+import { useAuth } from "@/components/AuthProvider";
 import { useRouter } from "next/navigation";
 import ProgressChart from "@/components/ProgressChart";
 import Card from "@/components/Card";
@@ -16,7 +16,7 @@ interface ProgressLog {
 }
 
 export default function ProgressPage() {
-  const { user, isLoading } = useUser();
+  const { user, loading: isLoading } = useAuth();
   const router = useRouter();
   const [progressLogs, setProgressLogs] = useState<ProgressLog[]>([]);
   const [showForm, setShowForm] = useState(false);
@@ -26,7 +26,7 @@ export default function ProgressPage() {
 
   useEffect(() => {
     if (!isLoading && !user) {
-      router.push("/api/auth/login");
+      router.push("/login");
     }
   }, [user, isLoading, router]);
 

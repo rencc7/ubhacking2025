@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useUser } from "@auth0/nextjs-auth0/client";
+import { useAuth } from "@/components/AuthProvider";
 import { useRouter } from "next/navigation";
 import AchievementBadge from "@/components/AchievementBadge";
 import Card from "@/components/Card";
@@ -15,13 +15,13 @@ interface Achievement {
 }
 
 export default function AchievementsPage() {
-  const { user, isLoading } = useUser();
+  const { user, loading: isLoading } = useAuth();
   const router = useRouter();
   const [achievements, setAchievements] = useState<Achievement[]>([]);
 
   useEffect(() => {
     if (!isLoading && !user) {
-      router.push("/api/auth/login");
+      router.push("/login");
     }
   }, [user, isLoading, router]);
 

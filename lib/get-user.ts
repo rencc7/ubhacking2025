@@ -1,17 +1,15 @@
-import { getSession } from "@auth0/nextjs-auth0";
 import { db } from "./db";
+import { getSessionFromRequest } from "./auth";
 
 export async function getCurrentUser() {
-  const session = await getSession();
-  
-  if (!session?.user) {
+  const session = getSessionFromRequest();
+
+  if (!session?.userId) {
     return null;
   }
 
-  const auth0Id = session.user.sub;
-  
   const user = await db.user.findUnique({
-    where: { auth0Id },
+    where: { id: session.userId },
     include: {
       profile: true,
     },

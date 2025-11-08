@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useUser } from "@auth0/nextjs-auth0/client";
+import { useAuth } from "@/components/AuthProvider";
 import { useRouter } from "next/navigation";
 import WorkoutCard from "@/components/WorkoutCard";
 import ExerciseDetail from "@/components/ExerciseDetail";
@@ -39,7 +39,7 @@ interface Exercise {
 }
 
 export default function WorkoutsPage() {
-  const { user, isLoading } = useUser();
+  const { user, loading: isLoading } = useAuth();
   const router = useRouter();
   const [workoutPlans, setWorkoutPlans] = useState<WorkoutPlan[]>([]);
   const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(null);
@@ -47,7 +47,7 @@ export default function WorkoutsPage() {
 
   useEffect(() => {
     if (!isLoading && !user) {
-      router.push("/api/auth/login");
+      router.push("/login");
     }
   }, [user, isLoading, router]);
 
