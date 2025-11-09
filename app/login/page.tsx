@@ -1,15 +1,17 @@
-'use client';
+"use client";
 
 import { FormEvent, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Header from '@/components/Header';
 import Link from 'next/link';
+import { useAuth } from '@/components/AuthProvider';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const router = useRouter();
+  const { login } = useAuth();
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -17,21 +19,12 @@ export default function LoginPage() {
     console.log('Submitting login form...');
 
     try {
-      const res = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await res.json();
-      console.log('Login response:', { status: res.status, data });
-
-      if (!res.ok) {
-        throw new Error(data.error || 'Failed to login');
+      const result = await login(email, password);
+      if (!result.ok) {
+        throw new Error(result.error || 'Failed to login');
       }
 
       console.log('Login successful, redirecting to dashboard...');
-      router.refresh(); // Refresh the router to ensure it has the latest auth state
       router.replace('/dashboard'); // Use replace instead of push to prevent back navigation to login
     } catch (err) {
       console.error('Login error:', err);
@@ -94,4 +87,3 @@ export default function LoginPage() {
       </div>
     </div>
   );
-}

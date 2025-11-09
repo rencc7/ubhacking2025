@@ -2,10 +2,13 @@
 
 import Link from "next/link";
 import { useAuth } from "@/components/AuthProvider";
-import { LogOut, User } from "lucide-react";
+import { LogOut, User, UserPlus } from "lucide-react";
+import { usePathname } from 'next/navigation';
 
 export default function Header() {
   const { user, loading: isLoading, logout } = useAuth();
+  const pathname = usePathname();
+  const isLoginPage = pathname === '/login' || pathname?.startsWith('/login');
 
   return (
     <header className="bg-card border-b border-border shadow-sm">
@@ -67,12 +70,23 @@ export default function Header() {
                   </button>
                 </>
               ) : (
-                <Link
-                  href="/login"
-                  className="px-6 py-2 rounded-lg bg-primary text-white hover:bg-primary-dark transition-colors"
-                >
-                  Login
-                </Link>
+                // On the login page, show a Sign up button in the header instead of Login
+                isLoginPage ? (
+                  <Link
+                    href="/register"
+                    className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-white hover:bg-primary-dark transition-colors"
+                  >
+                    <UserPlus className="w-4 h-4" />
+                    <span className="hidden sm:inline">Sign up</span>
+                  </Link>
+                ) : (
+                  <Link
+                    href="/login"
+                    className="px-6 py-2 rounded-lg bg-primary text-white hover:bg-primary-dark transition-colors"
+                  >
+                    Login
+                  </Link>
+                )
               )}
             </div>
           )}

@@ -1,9 +1,10 @@
-'use client';
+"use client";
 
 import { FormEvent, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Header from '@/components/Header';
 import Link from 'next/link';
+import { useAuth } from '@/components/AuthProvider';
 
 export default function RegisterPage() {
   const [name, setName] = useState('');
@@ -11,21 +12,16 @@ export default function RegisterPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const router = useRouter();
+  const { register } = useAuth();
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError('');
 
     try {
-      const res = await fetch('/api/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, password }),
-      });
-
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || 'Failed to register');
+      const result = await register(email, password, name);
+      if (!result.ok) {
+        throw new Error(result.error || 'Failed to register');
       }
 
       router.push('/dashboard');

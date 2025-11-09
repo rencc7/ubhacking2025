@@ -25,12 +25,6 @@ export default function Home() {
               <ArrowRight className="w-5 h-5" />
             </Link>
             <Link
-              href="/login"
-              className="px-8 py-4 rounded-lg bg-muted text-foreground hover:bg-accent transition-colors text-lg font-medium"
-            >
-              Login
-            </Link>
-            <Link
               href="/dashboard"
               className="px-8 py-4 rounded-lg bg-muted text-foreground hover:bg-accent transition-colors text-lg font-medium"
             >
