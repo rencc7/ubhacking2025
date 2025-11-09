@@ -14,6 +14,7 @@ export async function generateWorkoutPlan(
   bodyTypeGoal: string,
   fitnessLevel: string,
   durationWeeks: number,
+  daysPerWeek: number,
   preferences?: string
 ): Promise<string> {
   const prompt = `You are an expert fitness trainer. Create a detailed ${durationWeeks}-week workout plan for someone who wants to achieve a "${bodyTypeGoal}" body type.
@@ -22,14 +23,24 @@ User Details:
 - Fitness Level: ${fitnessLevel}
 - Goal: ${bodyTypeGoal}
 - Duration: ${durationWeeks} weeks
+- Days per week to workout: ${daysPerWeek}
 ${preferences ? `- Preferences: ${preferences}` : ""}
 
 Create a comprehensive workout plan that includes:
-1. Weekly schedule with specific exercises for each day
+1. Weekly schedule with exactly ${daysPerWeek} workout days per week (no more, no less)
 2. Exercise details (name, sets, reps, duration, rest periods)
 3. Progressive overload (increase intensity over weeks)
 4. Rest day recommendations
 5. Exercise variations for different fitness levels
+
+Important requirements:
+1. Each workout day MUST contain 3 to 5 exercises, no more and no less
+2. Every week MUST have unique workouts, with different exercises, order, or focus. Do NOT repeat the same week multiple times. Each week should be tailored and progressively overloaded.
+3. Include detailed exercises for EVERY week, not just the first week. Do NOT return only one week and repeat it. The JSON must contain ${durationWeeks} unique weeks, each with exactly ${daysPerWeek} workout days.
+4. For plank-type exercises (e.g. Side Plank), show sets as seconds (e.g. "3 sets x 30 seconds").
+5. For foam rolling or stretching exercises, do NOT show sets if not relevant.
+6. Instructions must be complete, clear, and never abbreviated. Do not use ellipses or incomplete sentences. Always provide full step-by-step instructions for each exercise.
+7. Each exercise must be complete with all details.
 
 Format the response as a JSON object with this structure:
 {
@@ -38,10 +49,10 @@ Format the response as a JSON object with this structure:
       "weekNumber": 1,
       "days": [
         {
-          "dayNumber": 1,
+          "dayNumber": 1, // MUST have user input duration number of weeks, no more or no less
           "dayName": "Monday",
           "focus": "Upper Body",
-          "exercises": [
+          "exercises": [  // MUST include 4-6 exercises for each day
             {
               "name": "Push-ups",
               "type": "strength",
@@ -49,7 +60,7 @@ Format the response as a JSON object with this structure:
               "sets": 3,
               "reps": 10,
               "restSeconds": 60,
-              "instructions": "Keep your body in a straight line..."
+              "instructions": "Keep your body in a straight line with your hands shoulder-width apart. Lower your body until your chest nearly touches the floor, then push back up. Repeat for the prescribed number of reps."
             }
           ]
         }
@@ -58,11 +69,11 @@ Format the response as a JSON object with this structure:
   ]
 }
 
-Make sure the plan is realistic, progressive, and tailored to achieve the "${bodyTypeGoal}" body type.`;
+Make sure the plan is realistic, progressive, and tailored to achieve the "${bodyTypeGoal}" body type. DO NOT repeat the same week for multiple weeks. Each week must be unique.`;
 
   try {
     const completion = await openrouter.chat.completions.create({
-      model: "anthropic/claude-3.5-sonnet",
+      model: "openai/gpt-3.5-turbo",
       messages: [
         {
           role: "system",
@@ -75,7 +86,7 @@ Make sure the plan is realistic, progressive, and tailored to achieve the "${bod
         },
       ],
       temperature: 0.7,
-      max_tokens: 4000,
+  max_tokens: 15000,
     });
 
     const content = completion.choices[0]?.message?.content;

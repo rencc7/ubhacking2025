@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/get-user";
 import { db } from "@/lib/db";
-import { startOfDay } from "date-fns";
+import { startOfDay, endOfDay } from "date-fns";
 
 export async function GET(request: NextRequest) {
   try {

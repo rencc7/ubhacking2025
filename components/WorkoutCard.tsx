@@ -8,7 +8,9 @@ interface Exercise {
   sets: number;
   reps?: number;
   duration?: number;
-  restSeconds: number;
+  restSeconds?: number;
+  intervalWork?: number;
+  intervalRest?: number;
 }
 
 interface WorkoutSession {
@@ -17,7 +19,7 @@ interface WorkoutSession {
   dayNumber: number;
   exercises: string;
   completed: boolean;
-  completedAt: Date | null;
+  completedAt: string | null;
 }
 
 interface WorkoutCardProps {
@@ -73,7 +75,7 @@ export default function WorkoutCard({ session, onComplete, onView }: WorkoutCard
       </div>
 
       <div className="space-y-2 mb-4">
-        {exercises.slice(0, 3).map((exercise, index) => (
+        {exercises.map((exercise, index) => (
           <div key={index} className="flex items-center justify-between text-sm">
             <span className="text-foreground">{exercise.name}</span>
             <span className="text-warm-gray">
@@ -83,9 +85,6 @@ export default function WorkoutCard({ session, onComplete, onView }: WorkoutCard
             </span>
           </div>
         ))}
-        {exercises.length > 3 && (
-          <p className="text-sm text-warm-gray-light">+ {exercises.length - 3} more exercises</p>
-        )}
       </div>
 
       {session.completed && session.completedAt && (

@@ -10,8 +10,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const body = await request.json();
-    const { bodyTypeGoal, fitnessLevel, durationWeeks, preferences } = body;
+  const body = await request.json();
+  const { bodyTypeGoal, fitnessLevel, durationWeeks, daysPerWeek, preferences } = body;
 
     if (!bodyTypeGoal || !fitnessLevel || !durationWeeks) {
       return NextResponse.json(
@@ -47,6 +47,7 @@ export async function POST(request: NextRequest) {
       bodyTypeGoal,
       fitnessLevel,
       durationWeeks,
+      daysPerWeek,
       preferences
     );
 

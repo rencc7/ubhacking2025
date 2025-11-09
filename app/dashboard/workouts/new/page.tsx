@@ -24,6 +24,7 @@ export default function NewWorkoutPlan() {
   const [fitnessLevel, setFitnessLevel] = useState("Intermediate");
   const [durationWeeks, setDurationWeeks] = useState(4);
   const [preferences, setPreferences] = useState("");
+  const [daysPerWeek, setDaysPerWeek] = useState(3);
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState("");
 
@@ -40,6 +41,7 @@ export default function NewWorkoutPlan() {
           bodyTypeGoal,
           fitnessLevel,
           durationWeeks,
+          daysPerWeek,
           preferences: preferences || undefined,
         }),
       });
@@ -113,21 +115,36 @@ export default function NewWorkoutPlan() {
             </div>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-foreground mb-2">
-              Duration (weeks)
-            </label>
-            <input
-              type="number"
-              min="1"
-              max="52"
-              value={durationWeeks}
-              onChange={(e) => setDurationWeeks(parseInt(e.target.value))}
-              className="w-full px-4 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-            />
-            <p className="text-sm text-warm-gray mt-1">
-              You can always extend your plan later
-            </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-2">
+                Duration (weeks)
+              </label>
+              <input
+                type="number"
+                min="1"
+                max="52"
+                value={durationWeeks}
+                onChange={(e) => setDurationWeeks(parseInt(e.target.value))}
+                className="w-full px-4 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+              />
+              <p className="text-sm text-warm-gray mt-1">
+                You can always extend your plan later
+              </p>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-2">
+                Days per week
+              </label>
+              <input
+                type="number"
+                min="1"
+                max="7"
+                value={daysPerWeek}
+                onChange={(e) => setDaysPerWeek(parseInt(e.target.value))}
+                className="w-full px-4 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+              />
+            </div>
           </div>
 
           <div>

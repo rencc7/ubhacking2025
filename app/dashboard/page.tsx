@@ -172,7 +172,18 @@ export default function Dashboard() {
   };
 
   const currentWeekSessions = getCurrentWeekSessions();
-  const completedWorkouts = currentWeekSessions.filter((s) => s.completed).length;
+  // Helper to check if a session has valid exercises
+  const hasValidExercises = (session: WorkoutSession) => {
+    try {
+      const exercises = JSON.parse(session.exercises);
+      return Array.isArray(exercises) && exercises.length > 0;
+    } catch {
+      return false;
+    }
+  };
+
+  const filteredWeekSessions = currentWeekSessions.filter(hasValidExercises);
+  const completedWorkouts = filteredWeekSessions.filter((s) => s.completed).length;
 
   if (isLoading || loading) {
     return (
@@ -268,7 +279,7 @@ export default function Dashboard() {
           <div>
             <h2 className="text-2xl font-semibold text-foreground mb-4">This Week's Workouts</h2>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {currentWeekSessions.slice(0, 6).map((session) => (
+              {filteredWeekSessions.slice(0, 6).map((session) => (
                 <WorkoutCard
                   key={session.id}
                   session={session}

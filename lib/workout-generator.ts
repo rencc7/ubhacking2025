@@ -1,16 +1,45 @@
 import { generateWorkoutPlan } from "./openrouter";
 import { db } from "./db";
 import { addWeeks, startOfDay } from "date-fns";
+import { processExerciseData } from "./exercise-processor";
 
 export interface Exercise {
   name: string;
   type: string;
   muscleGroups: string[];
   sets: number;
-  reps?: number;
-  duration?: number; // in seconds
-  restSeconds: number;
+  reps?: number | string;
+  duration?: number | string;
+  restSeconds?: number;
+  intervalWork?: number | string;
+  intervalRest?: number | string;
   instructions: string;
+}
+
+function parseIntervalPattern(repsOrDuration: string): { work?: number; rest?: number } {
+  // Match patterns like "30 seconds sprint, 30 seconds rest" or "45s work, 15s rest"
+  const pattern = /(\d+)\s*(?:seconds|s|mins?|minutes?)?\s*(?:sprint|work)?,?\s*(\d+)\s*(?:seconds|s|mins?|minutes?)?\s*(?:rest)/i;
+  const match = repsOrDuration.match(pattern);
+  
+  if (match) {
+    const workSeconds = parseDurationToSeconds(match[1] + " seconds");
+    const restSeconds = parseDurationToSeconds(match[2] + " seconds");
+    return {
+      work: workSeconds,
+      rest: restSeconds
+    };
+  }
+  return {};
+}
+
+function parseDurationToSeconds(duration: string): number {
+  // Simple implementation: extract number and unit
+  const match = duration.match(/(\d+)\s*(seconds|s|mins?|minutes?)/i);
+  if (!match) return 0;
+  const value = parseInt(match[1], 10);
+  const unit = match[2].toLowerCase();
+  if (unit.startsWith('min')) return value * 60;
+  return value;
 }
 
 export interface WorkoutDay {
@@ -34,10 +63,11 @@ export async function createWorkoutPlan(
   bodyTypeGoal: string,
   fitnessLevel: string,
   durationWeeks: number,
+  daysPerWeek: number,
   preferences?: string
 ) {
   // Generate workout plan using AI
-  const aiResponse = await generateWorkoutPlan(bodyTypeGoal, fitnessLevel, durationWeeks, preferences);
+  const aiResponse = await generateWorkoutPlan(bodyTypeGoal, fitnessLevel, durationWeeks, daysPerWeek, preferences);
 
   // Parse AI response
   let workoutData: WorkoutPlanResponse;
@@ -45,7 +75,23 @@ export async function createWorkoutPlan(
     workoutData = JSON.parse(aiResponse);
   } catch (error) {
     console.error("Error parsing AI response:", error);
+    console.error("Raw AI response:", aiResponse);
+    // If response is empty, retry with a shorter prompt
+    if (!aiResponse || aiResponse.length < 50) {
+      throw new Error("AI response was empty or incomplete. Please try again or reduce the number of weeks.");
+    }
     throw new Error("Failed to parse workout plan from AI");
+  }
+
+  // Ensure workoutData.weeks matches durationWeeks
+  let weeks = workoutData.weeks;
+  // No backend randomization. If weeks are missing, just trim or throw error.
+  if (weeks.length < durationWeeks) {
+    throw new Error(`AI did not return ${durationWeeks} unique weeks. Please try again or adjust your prompt.`);
+  }
+  // If too many weeks, trim
+  if (weeks.length > durationWeeks) {
+    weeks = weeks.slice(0, durationWeeks);
   }
 
   // Create workout plan in database
@@ -65,7 +111,7 @@ export async function createWorkoutPlan(
 
   // Create workout sessions for each week and day
   const sessions = [];
-  for (const week of workoutData.weeks) {
+  for (const week of weeks) {
     for (const day of week.days) {
       // Store exercises as JSON string
       const exercisesJson = JSON.stringify(day.exercises);
@@ -97,16 +143,9 @@ export async function createWorkoutPlan(
           });
 
           if (!existingExercise) {
+            const processedData = processExerciseData(exercise);
             await db.exercise.create({
-              data: {
-                name: exercise.name,
-                type: exercise.type,
-                muscleGroups: JSON.stringify(exercise.muscleGroups),
-                instructions: exercise.instructions,
-                sets: exercise.sets,
-                reps: exercise.reps,
-                duration: exercise.duration,
-              },
+              data: processedData
             });
           }
         }
@@ -178,7 +217,7 @@ export async function expandWorkoutPlan(
 
       const session = await db.workoutSession.create({
         data: {
-          workoutPlanId: workoutPlan.id,
+          workoutPlanId: updatedPlan.id,
           weekNumber: week.weekNumber,
           dayNumber: day.dayNumber,
           exercises: exercisesJson,
