@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Header from "@/components/Header";
-import { ArrowRight, Sparkles, Target, TrendingUp } from "lucide-react";
+import GetStartedButton from '@/components/GetStartedButton';
+import { Sparkles, Target, TrendingUp } from "lucide-react";
 
 export default function Home() {
   return (
@@ -17,15 +18,9 @@ export default function Home() {
             personalized guidance and daily motivation.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <GetStartedButton className="px-8 py-4 rounded-lg bg-primary text-white hover:bg-primary-dark transition-colors text-lg font-medium flex items-center justify-center gap-2" />
             <Link
-              href="/register"
-              className="px-8 py-4 rounded-lg bg-primary text-white hover:bg-primary-dark transition-colors text-lg font-medium flex items-center justify-center gap-2"
-            >
-              Get Started
-              <ArrowRight className="w-5 h-5" />
-            </Link>
-            <Link
-              href="/dashboard"
+              href="/intro"
               className="px-8 py-4 rounded-lg bg-muted text-foreground hover:bg-accent transition-colors text-lg font-medium"
             >
               Learn More

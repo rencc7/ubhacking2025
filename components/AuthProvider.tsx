@@ -1,6 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 type User = { id: string; email: string; name?: string | null } | null;
 
@@ -23,6 +24,7 @@ export function useAuth() {
 export default function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User>(null);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
     let mounted = true;
@@ -61,6 +63,12 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
   async function logout() {
     await fetch('/api/auth/logout', { method: 'POST' });
     setUser(null);
+    // After logout, navigate back to the landing / Get Started page
+    try {
+      router.replace('/');
+    } catch (err) {
+      // ignore navigation errors
+    }
   }
 
   return (
